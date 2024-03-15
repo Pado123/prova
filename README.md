@@ -39,5 +39,3 @@ Then, unzip the logs in the "log" folder.
 # Contributing
 Anonymus
 
-# Licence
-None
