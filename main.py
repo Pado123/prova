@@ -9,6 +9,7 @@ import random
 import tqdm
 import pickle
 import matplotlib.pyplot as plt
+import tqdm 
 
 import warnings
 
@@ -49,45 +50,46 @@ if '17' in hparams['exp_name']:
     log = utils.convert_timestamps_to_unix(log, hparams)
     print('Timestamps converted to unix')
     
-# # log = pd.read_csv(log)
+log = pd.read_csv(log)
 
-# # Filter the log only keeping activities that depecnds on bank's staff
-# log = utils.filter_on_banking_activities(log, hparams['banking_activities'])
+# Filter the log only keeping activities that depecnds on bank's staff
+log = utils.filter_on_banking_activities(log, hparams['banking_activities'])
 
 # # timestamps to unix
-# log = utils.convert_timestamps_to_unix(log, hparams)
+log = utils.convert_timestamps_to_unix(log, hparams)
 
 # plotting.plot_traces_lenght_distribution(log, hparams)
     
 # plotting.plot_active_traces_dist(log, hparams)    
 
 # utils.create_trace_len_dict(log, hparams)
-# plotting.plot_lenght_distribution(log, hparams)
+plotting.plot_lenght_distribution(log, hparams)
 
 # %%
-# lifecycles = 'lifecycle' in hparams.keys()
-# utils.create_activity_duration_dict(log, hparams, lifecycles=lifecycles)
+lifecycles = 'lifecycle' in hparams.keys()
+utils.create_activity_duration_dict(log, hparams, lifecycles=lifecycles)
 
 
 # %% Load it and reorganize it for general plots
-# drifts = [1470100000, 1475100000]
-# if hparams["drift_"]=='1':
-#     plotting.plot_activity_durations_with_drift(drift=drifts, hparams=hparams, w_den=6)
-# if hparams["drift_"]=='0':
-#     plotting.plot_activity_durations_without_drift(hparams=hparams, w_den=6)
+drifts = [1470100000, 1475100000]
+if hparams["drift_"]=='1':
+    plotting.plot_activity_durations_with_drift(drift=drifts, hparams=hparams, w_den=6)
+if hparams["drift_"]=='0':
+    plotting.plot_activity_durations_without_drift(hparams=hparams, w_den=6)
     
     
 
 # %% Read preprocessed log
-# train_idxs, test_idxs = utils.get_split_indexes(log, hparams, train_size=0.7)
+train_idxs, test_idxs = utils.get_split_indexes(log, hparams, train_size=0.7)
 
 
 # %%
 import predictor.preprocessing as ppg
 #Preprocessing imported from other folder
 log_preprocessed = pd.read_csv(hparams["preprocessed_log_path"])
-# resources_dict = utils.get_resources_times(log_preprocessed, hparams)
-# # Reorder the log for having the case column as first column
+resources_dict = utils.get_resources_times(log_preprocessed, hparams)
+
+# Reorder the log for having the case column as first column
 log_preprocessed = log_preprocessed[[hparams["case_"]] + [col for col in log_preprocessed.columns if col != hparams["case_"]]]
 
 train_indexes = pickle.load(open(f"variables/{hparams['exp_name']}/train_idx.pkl", "rb")) 
@@ -99,24 +101,24 @@ print('They have shape of', dfTrain.shape, dfTest.shape)
 
 
 # %% 
-# train_preprocessed = ppg.preprocess_log(dfTrain, hparams) 
-# train_preprocessed.to_csv(f"logs/{hparams['exp_name']}_dfTrain_processed_for_train.csv", index=False)
-# test_preprocessed = ppg.preprocess_log(dfTest, hparams)
-# test_preprocessed.to_csv(f"logs/{hparams['exp_name']}_dfTest_processed_for_test.csv", index=False)
-# print('Preprocessed logs saved')
-# print('They have shape of', train_preprocessed.shape, test_preprocessed.shape)
+train_preprocessed = ppg.preprocess_log(dfTrain, hparams) 
+train_preprocessed.to_csv(f"logs/{hparams['exp_name']}_dfTrain_processed_for_train.csv", index=False)
+test_preprocessed = ppg.preprocess_log(dfTest, hparams)
+test_preprocessed.to_csv(f"logs/{hparams['exp_name']}_dfTest_processed_for_test.csv", index=False)
+print('Preprocessed logs saved')
+print('They have shape of', train_preprocessed.shape, test_preprocessed.shape)
 
 # %% Trainer for models
 import predictor.time_pred as tp
-# train_preprocessed = pd.read_csv(f"logs/{hparams['exp_name']}_dfTrain_processed_for_train.csv")
-# model1 = tp.preprocess_and_train(train_preprocessed, hparams, model_name="model1")
-# IO.write(model1, f"results/{hparams['exp_name']}/model1.pkl")
-# model5 = tp.preprocess_and_train(train_preprocessed, hparams, model_name="model5")
-# IO.write(model5, f"results/{hparams['exp_name']}/model5.pkl")
-# model20 = tp.preprocess_and_train(train_preprocessed, hparams, model_name="model20")
-# IO.write(model20, f"results/{hparams['exp_name']}/model20.pkl")
-# model_time = tp.preprocess_and_train(train_preprocessed, hparams, model_name="time")
-# IO.write(model_time, f"results/{hparams['exp_name']}/model_time.pkl")
+train_preprocessed = pd.read_csv(f"logs/{hparams['exp_name']}_dfTrain_processed_for_train.csv")
+model1 = tp.preprocess_and_train(train_preprocessed, hparams, model_name="model1")
+IO.write(model1, f"results/{hparams['exp_name']}/model1.pkl")
+model5 = tp.preprocess_and_train(train_preprocessed, hparams, model_name="model5")
+IO.write(model5, f"results/{hparams['exp_name']}/model5.pkl")
+model20 = tp.preprocess_and_train(train_preprocessed, hparams, model_name="model20")
+IO.write(model20, f"results/{hparams['exp_name']}/model20.pkl")
+model_time = tp.preprocess_and_train(train_preprocessed, hparams, model_name="time")
+IO.write(model_time, f"results/{hparams['exp_name']}/model_time.pkl")
 
 # %% 
 import hash_maps
@@ -127,22 +129,17 @@ test_preprocessed = pd.read_csv(f"logs/{hparams['exp_name']}_dfTest_processed_fo
 split_time = test_preprocessed.END_DATE.mean() - 198567 # For BAC
 # split_time = 1464549028 # For BPI17 before
 # split_time = 1480703513 # For BPI17 after
-# res_availability_dict = ppg.create_resources_times(log_preprocessed, split_time, hparams)
-# running_log = utils.create_running_log(test_preprocessed, hparams, split_time)
-# running_log.to_csv(f"logs/{hparams['exp_name']}_running_log.csv")
-# running_log = pd.read_csv(f"logs/{hparams['exp_name']}_running_log.csv", index_col=0)
+res_availability_dict = ppg.create_resources_times(log_preprocessed, split_time, hparams)
+running_log = utils.create_running_log(test_preprocessed, hparams, split_time)
+running_log.to_csv(f"logs/{hparams['exp_name']}_running_log.csv")
+running_log = pd.read_csv(f"logs/{hparams['exp_name']}_running_log.csv", index_col=0)
 
-# train_indexes = pickle.load(open(f"variables/{hparams['exp_name']}/train_idx.pkl", "rb"))
-# log_preprocessed = pd.read_csv(hparams["preprocessed_log_path"])
-# dfTrain = log_preprocessed[log_preprocessed[hparams["case_"]].isin(train_indexes)]
+dfTrain = log_preprocessed[log_preprocessed[hparams["case_"]].isin(train_indexes)]
 activities_discovery = hash_maps.discover_activities(dfTrain, hparams)
-# pickle.dump(activities_discovery, open(f"variables/{hparams['exp_name']}/activities_discovery.pkl", "wb"))
+pickle.dump(activities_discovery, open(f"variables/{hparams['exp_name']}/activities_discovery.pkl", "wb"))
 
 # %% 
-import hash_maps
 import predictor.time_pred as tp
-import tqdm 
-
 # train_preprocessed = pd.read_csv(f"logs/{hparams['exp_name']}_dfTrain.csv") 
 transitions_system = hash_maps.create_transition_system(dfTrain, hparams, node_level=False, thrs=.02) 
 pickle.dump(transitions_system, open(f"variables/{hparams['exp_name']}/transitions_system.pkl", "wb"))
@@ -157,20 +154,23 @@ rank_indexes = pickle.load(open(f"results/{hparams['exp_name']}/rank_indexes.pkl
 running_log = pd.read_csv(f"logs/{hparams['exp_name']}_running_log.csv", index_col=0)
 activities_discovery = pickle.load(open(f"variables/{hparams['exp_name']}/activities_discovery.pkl", "rb"))
 
-model1 = IO.read(f"results/{hparams['exp_name']}/model1.pkl")
-model5 = IO.read(f"results/{hparams['exp_name']}/model5.pkl")
-model20 = IO.read(f"results/{hparams['exp_name']}/model20.pkl")
-model_time = IO.read(f"results/{hparams['exp_name']}/model_time.pkl")
+# Different parts of the oracle function
+model1 = IO.read(f"results/{hparams['exp_name']}/model1.pkl") #Lambda_1
+model5 = IO.read(f"results/{hparams['exp_name']}/model5.pkl") #Lambda_5
+model20 = IO.read(f"results/{hparams['exp_name']}/model20.pkl") #Lambda_20
+model_time = IO.read(f"results/{hparams['exp_name']}/model_time.pkl") #Rem_time_function
 
 
 
-# %%
+# %% Generate First Profile
 skipped_traces = 0
 available_resources = dfTest[hparams['res_']].unique()
 busy_resources = [] 
-consider_best_one = False
-print('Start generating recommendations', consider_best_one*'considering only the best one')
-if not consider_best_one:
+benchmark = False # This hparam set if it is or not the BENCHMARK MODE, as referred in the paper.
+print('Start generating recommendations', not(benchmark)*'not', 'considering the benchmark')
+
+
+if not benchmark:
     n = 3 # Number of res per act
     k = 25 # Number of recommendations pairs in total (at max n*max(n_acts_possible))
         
@@ -240,7 +240,7 @@ if not consider_best_one:
     print(f"Skipped traces are {skipped_traces}")
     print(f"Total traces are {len(rank_indexes)}")
     
-elif consider_best_one:
+elif benchmark:
     recommendations_dataframe = pd.DataFrame(columns=["case:concept:name", "repl_id", "act_1", "res_1"])
     for trace_id in tqdm.tqdm([el[0] for el in rank_indexes]):
         

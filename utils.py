@@ -9,7 +9,7 @@ sns.set_style('darkgrid')
 
 from IO import read, write
 
-def get_split_indexes(df, hparams, train_size=.68):
+def get_split_indexes(df, hparams, train_size=.70):
     
     # df has replaced log cause am lazy, but it is just in that function
     
@@ -228,3 +228,5 @@ def filter_on_topk_acts(rec_df, n):
         ret_df = pd.concat([ret_df, alog])
      
     return ret_df
+
+def evaluate_Time_Workload_Coefficient(profile, hparams):
