@@ -228,5 +228,3 @@ def filter_on_topk_acts(rec_df, n):
         ret_df = pd.concat([ret_df, alog])
      
     return ret_df
-
-def evaluate_Time_Workload_Coefficient(profile, hparams):

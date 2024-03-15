@@ -168,7 +168,7 @@ available_resources = dfTest[hparams['res_']].unique()
 busy_resources = [] 
 benchmark = False # This hparam set if it is or not the BENCHMARK MODE, as referred in the paper.
 print('Start generating recommendations', not(benchmark)*'not', 'considering the benchmark')
-
+first_profile = pd.DataFrame(columns=["case:concept:name", "repl_id", "act_1", "res_1", "lambda_1", "lambda_5", "lambda_20"])
 
 if not benchmark:
     n = 3 # Number of res per act
@@ -204,39 +204,15 @@ if not benchmark:
             # From the column with the lowest expected value_time, return activity and resource
             rec_df.sort_values(by='expected_value_time', inplace=True)
             
-            # Drop the rows in which the resource is missing
-            rec_df = rec_df[rec_df['res'] != 'missing']
-            
-            # Filter the rec_df on the top n activities
-            rec_df = utils.filter_on_topk_acts(rec_df, n)
-            rec_df = rec_df.iloc[:k].reset_index(drop=True)
-            
-            
-            # From the rec_df dataframe, append it to the recommendations_dataframe following the order
-            vec = [trace_id, repl_id]         
-            if len(rec_df) >= k:
-                vec = vec + [rec_df.iloc[i]['act'] for i in range(k)]
-                vec = vec + [rec_df.iloc[i]['res'] for i in range(k)]
-                recommendations_dataframe = recommendations_dataframe.append(pd.Series(vec, index=recommendations_dataframe.columns), ignore_index=True)
-                print(f'The recommendations dataframe is {len(recommendations_dataframe)}')
-            else:
-                vec = vec + [rec_df.iloc[i]['act'] for i in range(len(rec_df))]
-                vec = vec + ['missing' for i in range(k-len(rec_df))]
-                vec = vec + [rec_df.iloc[i]['res'] for i in range(len(rec_df))]
-                vec = vec + ['missing' for i in range(k-len(rec_df))]
-                recommendations_dataframe = recommendations_dataframe.append(pd.Series(vec, index=recommendations_dataframe.columns), ignore_index=True)
-                print(f'The recommendations dataframe is {len(recommendations_dataframe)}')
-                
-            if len(recommendations_dataframe) == 10:
-                recommendations_dataframe.to_csv(f"results/{hparams['exp_name']}/recommendations_dataframe_10.csv", index=False)
-            if len(recommendations_dataframe) == 50:
-                recommendations_dataframe.to_csv(f"results/{hparams['exp_name']}/recommendations_dataframe_50.csv", index=False)
+            first_profile = first_profile.append({"case:concept:name": trace_id, "repl_id": repl_id, "act_1": rec_df.iloc[0]['act'], "res_1": rec_df.iloc[0]['res'], "lambda_1": rec_df.iloc[0]['expected_value_time1'], "lambda_5": rec_df.iloc[0]['expected_value_time5'], "lambda_20": rec_df.iloc[0]['expected_value_time20']}, ignore_index=True)
+        
         except:
             skipped_traces += 1
             print(f"The trace is not in the transition system, skipped traces are {skipped_traces}")
             continue
         
     recommendations_dataframe.to_csv(f"results/{hparams['exp_name']}/recommendations_dataframe.csv", index=False)
+    first_profile.to_csv(f"profiles/{hparams['exp_name']}/first_profile.csv", index=False)
     print(f"Skipped traces are {skipped_traces}")
     print(f"Total traces are {len(rank_indexes)}")
     
@@ -299,4 +275,3 @@ elif benchmark:
     print(f"Total traces are {len(rank_indexes)}")
 
 
-# %%

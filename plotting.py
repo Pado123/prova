@@ -12,7 +12,7 @@ import pickle
 from datetime import datetime
 import json
 
-#%% 
+#%% Helper functions
 import utils 
 
 def remove_outliers(vec):
@@ -434,9 +434,8 @@ def plot_mean_and_std(hparams):
     # plt.close()
     print("Plots saved")
 
-
                   
-# %%
+# %% Choice the hparameters
 hparams = json.load(open("hparams/hparams_bac.json", "r"))
 plot_mean_and_std(hparams)
 import utils
