@@ -6,7 +6,6 @@ from catboost import CatBoostRegressor, CatBoostClassifier, Pool
 from catboost.utils import select_threshold
 from IO import read, write
 
-# d = json.load(open("/home/padella/Desktop/gui_catboost/experiments/bac_time4split--10-01-2024_11-00-47_409719+0000/model/data_info.json"))
 
 def fit_model(train_df, y, hparams):
 
