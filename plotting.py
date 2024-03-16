@@ -632,7 +632,6 @@ nbin = len(reality_plot)
 
 # Get the interval 
 # interval = (log['END_DATE'].min(), log['END_DATE'].max())
-log = pm4py.read_xes('/home/padella/Desktop/experience_based/logs/BPI17_after.xes')
 # interval = (log['END_TIME'].min(), log['END_TIME'].max())
 interval = (convert_to_unix(str(log['time:timestamp'].min())), convert_to_unix(str(log['time:timestamp'].max())))
 bins = np.linspace(interval[0], interval[1], nbin)
